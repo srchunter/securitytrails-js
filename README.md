@@ -10,7 +10,7 @@ npm install securitytrails-js
 
 In Node.js to create a new API Client:
 ```
-const STAPI = require("securitytrails")
+const STAPI = require("securitytrails-js")
 
 const stapi = new STAPI(API_KEY)
 ```
