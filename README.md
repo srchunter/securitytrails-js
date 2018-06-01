@@ -30,7 +30,7 @@ You can then run the API functions which will pass parsed JSON response, status,
  - [search](#search)
  - [search_stats](#search_stats)
 
- ### Other
+ ## Other
  - [get](#get)
  - [post](#post)
 
