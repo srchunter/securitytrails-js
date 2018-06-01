@@ -1,0 +1,11 @@
+{
+  "name": "securitytrails-js",
+  "version": "1.0.0",
+  "description": "Node.js wrapper for the SecurityTrails API",
+  "main": "securitytrails-js.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SecurityTrails",
+  "license": "ISC"
+}
