@@ -1,420 +1,188 @@
-const https = require('https');
+const fetch = require('node-fetch');
+const querystring = require('querystring');
+const fs = require('fs');
 
-function STAPI(api_key) {
+class STAPI = {
 
-    this.params = {
-        host: "api.securitytrails.com",
-        api_key: api_key || null
-    };
+    constructor(api_key) {
+        this.host: "https://api.securitytrails.com/v1";
+        this.options = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+                'APIKEY': api_key || null
+            }
+        };
+    }
 
-}
-
-STAPI.prototype.get = function (path, callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: path,
-        method: "GET",
-        headers: { "APIKEY": this.params.api_key }
-    };
-
-    https.get(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    }).on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-}
-
-STAPI.prototype.post = function (path, body, callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: path,
-        method: "POST",
-        headers: {
-            "APIKEY": this.params.api_key,
-            "Content-Type": "application/json"
+    #handleErrors(response) {
+        if (!response.ok) {
+            throw Error(response.statusText);
         }
-    };
-
-    const req = https.request(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    })
-
-    req.on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-    var json_string = JSON.stringify(body)
-    var buffer = Buffer.from(json_string, "utf-8")
-    req.end(buffer);
-
-}
-
-STAPI.prototype.ping = function (callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: "/v1/ping",
-        method: "GET",
-        headers: { "APIKEY": this.params.api_key }
-    };
-
-    https.get(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    }).on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-}
-
-STAPI.prototype.usage = function (callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: "/v1/account/usage",
-        method: "GET",
-        headers: { "APIKEY": this.params.api_key }
-    };
-
-    https.get(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    }).on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-}
-
-STAPI.prototype.get_domain = function (hostname, callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: "/v1/domain/" + hostname,
-        method: "GET",
-        headers: { "APIKEY": this.params.api_key }
-    };
-
-    https.get(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    }).on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-}
-
-STAPI.prototype.list_domain = function (domain, callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: "/v1/domain/" + domain + "/subdomains",
-        method: "GET",
-        headers: { "APIKEY": this.params.api_key }
-    };
-
-    https.get(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    }).on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-}
-
-STAPI.prototype.list_tags = function (domain, callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: "/v1/domain/" + domain + "/tags",
-        method: "GET",
-        headers: { "APIKEY": this.params.api_key }
-    };
-
-    https.get(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    }).on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-}
-
-STAPI.prototype.get_WHOIS = function (domain, callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: "/v1/domain/" + domain + "/whois",
-        method: "GET",
-        headers: { "APIKEY": this.params.api_key }
-    };
-
-    https.get(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    }).on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-}
-
-STAPI.prototype.list_by_record_type = function (params, callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: "/v1/history/" + params.hostname + "/dns/" + params.type,
-        method: "GET",
-        headers: { "APIKEY": this.params.api_key }
-    };
-
-    if (params.page) {
-        opt.path += "?page=" + params.page
+        return response;
     }
 
-    https.get(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    }).on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-}
-
-STAPI.prototype.list_by_domain = function (params, callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: "/v1/history/" + params.domain + "/whois",
-        method: "GET",
-        headers: { "APIKEY": this.params.api_key }
-    };
-
-    if (params.page) {
-        opt.path += "?page=" + params.page
+    async #fetch(url, options) => {
+        return await fetch(url, options)
+            .then(this.handleErrors)
+            .then(data => {
+                return data;
+            })
+            .catch(err => console.error('error:' + err));
     }
 
-    https.get(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    }).on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-}
-
-STAPI.prototype.explore_ips = function (params, callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: "/v1/explore/ip/",
-        method: "GET",
-        headers: { "APIKEY": this.params.api_key }
-    };
-
-    if (params.ip) {
-        opt.path += params.ip;
-    } else {
-        opt.path += "1.1.1.1";
+    async #getRequest(path) => {
+        let options = Object.assign({}, this.options);
+        options.method = 'GET';
+        const url = this.host + path;
+        return await this.fetch(url, options);
     }
 
-    if (params.mask) {
-        opt.path += "?mask=" + params.mask;
+    async #postRequest(path, body = {}) => {
+        let options = Object.assign({}, this.options);
+        options.method = 'POST';
+        options.body = JSON.stringify(body);
+        const url = this.host + path;
+        return await this.fetch(url, options);
     }
 
-    https.get(opt, (res) => {
+    async #postFileRequest(path, file) => {
+        let options = Object.assign({}, this.options);
 
-        let data = "";
+        const stats = fs.statSync(file);
+        const fileSizeInBytes = stats.size;
+        let readStream = fs.createReadStream('file);
 
-        res.on("data", (frag) => {
-            data += frag;
-        });
+        options.method = 'POST';
+        options.body = readStream;
+        options["Content-length"] = fileSizeInBytes;
 
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
+        const url = this.host + path;
+        return await this.fetch(url, options);
+    }
 
-    }).on("error", (err) => {
-        callback(null, null, null, err);
-    });
+    async ping() => {
+        return await this.getRequest('/ping');
+    }
 
-}
+    async usage() => {
+        return await this.getRequest('/account/usage');
+    }
 
-STAPI.prototype.search = function (params, callback) {
+    async scroll(scroll_id) => {
+        return await this.getRequest('/scroll/' . scroll_id);
+    }
 
-    var opt = {
-        host: this.params.host,
-        path: "/v1/search/list",
-        method: "POST",
-        headers: {
-            "APIKEY": this.params.api_key,
-            "Content-Type": "application/json"
+    STAPI.company = {
+        async details(domain) => {
+            return await this.getRequest('/company/' . domain);
         }
-    };
-
-    if (params.page) {
-        opt.page += "?page=" + params.page;
+        async associatedIps(domain) => {
+            return await this.getRequest('/company/' . domain . '/associated-ips');
+        }
     }
 
-    const req = https.request(opt, (res) => {
-
-        let data = "";
-
-        res.on("data", (frag) => {
-            data += frag;
-        });
-
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
-
-    })
-
-    req.on("error", (err) => {
-        callback(null, null, null, err);
-    });
-
-    var json = {
-        filter : params.filter
-    };
-
-    var json_string = JSON.stringify(json)
-    var buffer = Buffer.from(json_string, "utf-8")
-    req.end(buffer);
-
-}
-
-STAPI.prototype.search_stats = function (params, callback) {
-
-    var opt = {
-        host: this.params.host,
-        path: "/v1/search/list/stats",
-        method: "POST",
-        headers: {
-            "APIKEY": this.params.api_key,
-            "Content-Type": "application/json"
+    STAPI.domains = {
+        async details(hostname) => {
+            return await this.getRequest('/domain/' . hostname);
         }
-    };
 
-    const req = https.request(opt, (res) => {
+        async subdomains(hostname, children_only = false, include_inactive = true) => {
+            return await this.getRequest('/domain/' . hostname . `/subdomains?children_only=${children_only}&include_inactive=${include_inactive}`);
+        }
 
-        let data = "";
+        async tags(hostname) => {
+            return await this.getRequest('/domain/' . hostname . '/tags');
+        }
 
-        res.on("data", (frag) => {
-            data += frag;
-        });
+        async whois(hostname) => {
+            return await this.getRequest('/domain/' . hostname . '/whois');
+        }
 
-        res.on("end", () => {
-            callback(JSON.parse(data), res.statusCode, res.headers, null);
-        });
+        async search(include_ips = false, page = 1, scroll = false, body = {}) => {
+            return await this.postRequest(`/domains/list?include_ips=${include_ips}&page=${page}&scroll=${scroll}`, body);
+        }
 
-    })
+        async statistics(body = {}) => {
+            return await this.postRequest('/domains/stats', body);
+        }
 
-    req.on("error", (err) => {
-        callback(null, null, null, err);
-    });
+        async associatedDomains(hostname, page = 1) => {
+            return await this.getRequest(`/domain/${hostname}/associated?page=${page}`);
+        }
 
-    var json = {
-        filter : params.filter
-    };
+        async ssl(hostname, include_subdomains = false, status = 'valid', page = 1) => {
+            const qs = querystring.encode({include_subdomains: include_subdomains, status: status, page: page});
+            return await this.getRequest(`/domain/${hostname}/ssl?${qs}`);
+        }
 
-    var json_string = JSON.stringify(json)
-    var buffer = Buffer.from(json_string, "utf-8")
-    req.end(buffer);
+        async sslStream(hostname, include_subdomains = false, status = 'valid') => {
+            const qs = querystring.encode({include_subdomains: include_subdomains, status: status});
+            return await this.getRequest(`/domain/${hostname}/ssl_stream?${qs}`);
+        }
+    }
 
+    STAPI.history = {
+        async dns(hostname, type = 'a', page = 1) => {
+            return await this.getRequest(`/history/${hostname}/dns/${type}?page=${page}`);
+        }
+
+        async whois(hostname, page = 1) => {
+            return await this.getRequest(`/history/${hostname}/whois?page=${page}`);
+        }
+    }
+
+    STAPI.ips = {
+        async neighbors(ipAddress) => {
+            return await this.getRequest(`/ips/nearby/${ipAddress}`);
+        }
+
+        async dsl(page = 1, body = {}) => {
+            return await this.postRequest(`/ips/list?page=${page}`, body);
+        }
+
+        async statistics(body = {}) => {
+            return await this.postRequest(`/ips/stats`, body);
+        }
+
+        async whois(ipAddress) => {
+            return await this.getRequest(`/ips/${ipAddress}/whois`);
+        }
+
+        async useragents(ipAddress, page = 1) => {
+            return await this.getRequest(`/ips/${ipAddress}/useragents?page=${page}`);
+        }
+    }
+
+    STAPI.feeds = {
+        async domains(type = all, filter = '', tld = '', ns = '', date = '') => {
+            const qs = querystring.encode({filter: filter, tld: tld, ns: ns, date: date});
+            return await this.getRequest(`/feeds/domains/${type}?${qs}`);
+        }
+
+        async domains(type = all, date = '') => {
+            const qs = querystring.encode({date: date});
+            return await this.getRequest(`/feeds/dmarc/${type}?${qs}`);
+        }
+
+        async domains(type = all, filter = '', tld = '', date = '') => {
+            const qs = querystring.encode({filter: filter, tld: tld, date: date});
+            return await this.getRequest(`/feeds/subdomains/${type}?${qs}`);
+        }
+    }
+
+    STAPI.firehose = {
+        async ct(start = '', end = '') => {
+            const qs = querystring.encode({start: start, end: end});
+            return await this.getRequest(`/firehose/ct-logs?${qs}`);
+        }
+    }
+
+    STAPI.misc = {
+        async submit(filePath) => {
+            return await this.postFileRequest(`/submit/hostnames`, filePath);
+        }
+    }
 }
 
 module.exports = STAPI;
