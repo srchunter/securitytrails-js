@@ -1,13 +1,12 @@
-const STAPI = require("securitytrails-js")
+const STAPI = require('securitytrails-js')
 
 const stapi = new STAPI(API_KEY) // Insert your API key here
 
 // Running all the requests instantly after each other would
 // exceed the rate limit. Choose one and uncomment to see an example.
 
-
 // stapi.ping(
-//     function(data, status, header, err) { 
+//     function(data, status, header, err) {
 //         console.log("Data:", data);
 //         console.log("Status:", status);
 //         console.log("Header:", header);
@@ -15,7 +14,7 @@ const stapi = new STAPI(API_KEY) // Insert your API key here
 //     });
 
 // stapi.usage(
-//     function(data, status, header, err) { 
+//     function(data, status, header, err) {
 //         console.log("Data:", data);
 //         console.log("Status:", status);
 //         console.log("Header:", header);
@@ -24,7 +23,7 @@ const stapi = new STAPI(API_KEY) // Insert your API key here
 
 // stapi.get_domain(
 //     "securitytrails.com", // hostname
-//     function(data, status, header, err) { 
+//     function(data, status, header, err) {
 //         console.log("Data:", data);
 //         console.log("Status:", status);
 //         console.log("Header:", header);
@@ -33,7 +32,7 @@ const stapi = new STAPI(API_KEY) // Insert your API key here
 
 // stapi.list_domain(
 //     "securitytrails.com", // domain
-//     function(data, status, header, err) { 
+//     function(data, status, header, err) {
 //         console.log("Data:", data);
 //         console.log("Status:", status);
 //         console.log("Header:", header);
@@ -42,7 +41,7 @@ const stapi = new STAPI(API_KEY) // Insert your API key here
 
 // stapi.list_tags(
 //     "pornhub.com", // domain
-//     function(data, status, header, err) { 
+//     function(data, status, header, err) {
 //         console.log("Data:", data);
 //         console.log("Status:", status);
 //         console.log("Header:", header);
@@ -51,7 +50,7 @@ const stapi = new STAPI(API_KEY) // Insert your API key here
 
 // stapi.get_WHOIS(
 //     "netflix.com", // domain
-//     function(data, status, header, err) { 
+//     function(data, status, header, err) {
 //         console.log("Data:", data);
 //         console.log("Status:", status);
 //         console.log("Header:", header);
@@ -64,7 +63,7 @@ const stapi = new STAPI(API_KEY) // Insert your API key here
 //         type        : "a",
 //         page        : 1     // Optional
 //     },
-//     function(data, status, header, err) { 
+//     function(data, status, header, err) {
 //         console.log("Data:", data);
 //         console.log("Status:", status);
 //         console.log("Header:", header);
@@ -79,7 +78,7 @@ const stapi = new STAPI(API_KEY) // Insert your API key here
 //             keyword : "stackover"
 //         }
 //     },
-//     function(data, status, header, err) { 
+//     function(data, status, header, err) {
 //         console.log("Data:", data);
 //         console.log("Status:", status);
 //         console.log("Header:", header);
@@ -94,7 +93,7 @@ const stapi = new STAPI(API_KEY) // Insert your API key here
 //             keyword : "stackover"
 //         }
 //     },
-//     function(data, status, header, err) { 
+//     function(data, status, header, err) {
 //         console.log("Data:", data);
 //         console.log("Status:", status);
 //         console.log("Header:", header);
