@@ -1,8 +1,8 @@
 {
   "name": "securitytrails-js",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Node.js wrapper for the SecurityTrails API",
-  "main": "securitytrails-js.js",
+  "main": "index.js",
   "scripts": {
     "test": "standard"
   },
@@ -11,5 +11,7 @@
   "devDependencies": {
     "standard": "*"
   },
-  "dependencies": {}
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
 }

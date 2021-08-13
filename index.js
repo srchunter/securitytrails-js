@@ -18,7 +18,7 @@ class STAPI {
   }
 
   /**
-   * Utility function for handling node-fetch errors.
+   * Utility for handling node-fetch errors.
    * @param {object} response
    * @returns
    */
@@ -33,9 +33,9 @@ class STAPI {
    * Node fetch wrapper
    * @param {string} url The full URL for the API endpoint.
    * @param {object} options Request options, including headers and methods.
-   * @returns 
+   * @returns {Promise}
    */
-  fetch (url, options) {
+  request (url, options) {
     return fetch(url, options)
     // .then(this.handleErrors)
     // .then(data => {
@@ -50,10 +50,10 @@ class STAPI {
    * @returns {Promise}
    */
   getRequest (path) {
-    const options = Object.assign({}, this.options)
-    options.method = 'GET'
+    const opts = Object.assign({}, this.options)
+    opts.method = 'GET'
     const url = this.host + path
-    return this.fetch(url, options)
+    return this.request(url, opts)
   }
 
   /**
@@ -63,11 +63,11 @@ class STAPI {
    * @returns {Promise}
    */
   postRequest (path, body = {}) {
-    const options = Object.assign({}, this.options)
-    options.method = 'POST'
-    options.body = JSON.stringify(body)
+    const opts = Object.assign({}, this.options)
+    opts.method = 'POST'
+    opts.body = JSON.stringify(body)
     const url = this.host + path
-    return this.fetch(url, options)
+    return this.request(url, opts)
   }
 
   /**
@@ -77,22 +77,22 @@ class STAPI {
    * @returns {Promise}
    */
   postFileRequest (path, file) {
-    const options = Object.assign({}, this.options)
+    const opts = Object.assign({}, this.options)
 
     const stats = fs.statSync(file)
     const fileSizeInBytes = stats.size
     const readStream = fs.createReadStream(file)
 
-    options.method = 'POST'
-    options.body = readStream
-    options['Content-length'] = fileSizeInBytes
+    opts.method = 'POST'
+    opts.body = readStream
+    opts['Content-length'] = fileSizeInBytes
 
     const url = this.host + path
-    return this.fetch(url, options)
+    return this.request(url, opts)
   }
 
   /**
-   * Generate querystring parameters.
+   * Generate string of querystring parameters.
    * @param {object} obj Key value pairs of parameters.
    * @returns {string}
    */
@@ -110,7 +110,7 @@ class STAPI {
    *
    * @returns {Promise}
    */
-  ping () {
+  generalPing () {
     return this.getRequest('/ping')
   }
 
@@ -120,7 +120,7 @@ class STAPI {
    *
    * @returns {Promise}
    */
-  usage () {
+  generalUsage () {
     return this.getRequest('/account/usage')
   }
 
@@ -130,12 +130,10 @@ class STAPI {
    * @param {string} scrollId The scroll_id returned in the scroll request.
    * @returns {Promise}
    */
-  scroll (scrollId) {
+  generalScroll (scrollId) {
     return this.getRequest(`/scroll/${scrollId}`)
   }
-}
 
-STAPI.company = class company extends STAPI {
   /**
    * Details
    * Returns details for a company domain.
@@ -143,7 +141,7 @@ STAPI.company = class company extends STAPI {
    * @param {string} domain A domain
    * @returns {Promise}
    */
-  details (domain) {
+  companyDetails (domain) {
     return this.getRequest(`/company/${domain}`)
   }
 
@@ -154,12 +152,10 @@ STAPI.company = class company extends STAPI {
    * @param {string} domain A domain
    * @returns {Promise}
    */
-  associatedIps (domain) {
+  companyAssociatedIps (domain) {
     return this.getRequest(`/company/${domain}/associated-ips`)
   }
-}
 
-STAPI.domains = class domains extends STAPI {
   /**
    * Details
    * Returns the current data about the given hostname. In addition to the current data, you also get the current statistics associated with a particular record. For example, for a records you'll get how many other hostnames have the same IP
@@ -167,7 +163,7 @@ STAPI.domains = class domains extends STAPI {
    * @param {string} hostname A domain
    * @returns {Promise}
    */
-  details (hostname) {
+  domainsDetails (hostname) {
     return this.getRequest(`/domain/${hostname}`)
   }
 
@@ -180,7 +176,7 @@ STAPI.domains = class domains extends STAPI {
    * @param {boolean} includeInactive Include domains that don't have active DNS records
    * @returns {Promise}
    */
-  subdomains (hostname, childrenOnly = false, includeInactive = true) {
+  domainsSubdomains (hostname, childrenOnly = false, includeInactive = true) {
     return this.getRequest(
       `/domain/${hostname}/subdomains?children_only=${childrenOnly}&include_inactive=${includeInactive}`
     )
@@ -193,7 +189,7 @@ STAPI.domains = class domains extends STAPI {
    * @param {string} hostname A domain
    * @returns {Promise}
    */
-  tags (hostname) {
+  domainsTags (hostname) {
     return this.getRequest(`/domain/${hostname}/tags`)
   }
 
@@ -204,7 +200,7 @@ STAPI.domains = class domains extends STAPI {
    * @param {string} hostname A domain
    * @returns {Promise}
    */
-  whois (hostname) {
+  domainsWhois (hostname) {
     return this.getRequest(`/domain/${hostname}/whois`)
   }
 
@@ -218,7 +214,7 @@ STAPI.domains = class domains extends STAPI {
    * @param {Object} body Body parameters. See https://docs.securitytrails.com/reference#domain-search
    * @returns {Promise}
    */
-  search (includeIps = false, page = 1, scroll = false, body = {}) {
+  domainsSearch (includeIps = false, page = 1, scroll = false, body = {}) {
     return this.postRequest(
       `/domains/list?include_ips=${includeIps}&page=${page}&scroll=${scroll}`,
       body
@@ -232,7 +228,7 @@ STAPI.domains = class domains extends STAPI {
    * @param {Object} body Body parameters. See https://docs.securitytrails.com/reference#domain-statistics
    * @returns {Promise}
    */
-  statistics (body = {}) {
+  domainsStatistics (body = {}) {
     return this.postRequest('/domains/stats', body)
   }
 
@@ -244,7 +240,7 @@ STAPI.domains = class domains extends STAPI {
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
    * @returns {Promise}
    */
-  associatedDomains (hostname, page = 1) {
+  domainsAssociatedDomains (hostname, page = 1) {
     return this.getRequest(`/domain/${hostname}/associated?page=${page}`)
   }
 
@@ -258,7 +254,7 @@ STAPI.domains = class domains extends STAPI {
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
    * @returns {Promise}
    */
-  ssl (hostname, includeSubdomains = false, status = 'valid', page = 1) {
+  domainsSsl (hostname, includeSubdomains = false, status = 'valid', page = 1) {
     const qs = this.querystring({
       include_subdomains: includeSubdomains,
       tatus: status,
@@ -276,16 +272,14 @@ STAPI.domains = class domains extends STAPI {
    * @param {string} status Valid values are "valid", "all", and "expired". Default is valid.
    * @returns {Promise}
    */
-  sslStream (hostname, includeSubdomains = false, status = 'valid') {
+  domainsSslStream (hostname, includeSubdomains = false, status = 'valid') {
     const qs = this.querystring({
       include_subdomains: includeSubdomains,
       status: status
     })
     return this.getRequest(`/domain/${hostname}/ssl_stream?${qs}`)
   }
-}
 
-STAPI.history = class history extends STAPI {
   /**
    * DNS
    * Lists out specific historical information about the given hostname parameter. In addition of fetching the historical data for a particular type, the count statistic is returned as well, which represents the number of that particular resource against current data. (a records will have an ip_count field which will represent the number of records that has the same IP as that particular record) The results are sorted first_seen descending. The number of results is not limited.
@@ -295,7 +289,7 @@ STAPI.history = class history extends STAPI {
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
    * @returns {Promise}
    */
-  dns (hostname, type = 'a', page = 1) {
+  historyDns (hostname, type = 'a', page = 1) {
     return this.getRequest(`/history/${hostname}/dns/${type}?page=${page}`)
   }
 
@@ -307,12 +301,10 @@ STAPI.history = class history extends STAPI {
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
    * @returns {Promise}
    */
-  whois (hostname, page = 1) {
+  historyWhois (hostname, page = 1) {
     return this.getRequest(`/history/${hostname}/whois?page=${page}`)
   }
-}
 
-STAPI.ips = class ips extends STAPI {
   /**
    * Neighbors
    * Returns the neighbors in any given IP level range and essentially allows you to explore closeby IP addresses. It will divide the range into 16 groups. Example: a /28 would be divided into 16 /32 blocks or a /24 would be divided into 16 /28 blocks
@@ -320,7 +312,7 @@ STAPI.ips = class ips extends STAPI {
    * @param {string} ipAddress Starting IP address (optionally with CIDR subnet mask)
    * @returns {Promise}
    */
-  neighbors (ipAddress) {
+  ipsNeighbors (ipAddress) {
     return this.getRequest(`/ips/nearby/${ipAddress}`)
   }
 
@@ -332,7 +324,7 @@ STAPI.ips = class ips extends STAPI {
    * @param {Object} body The DSL query you want to run. See How to use the DSL. (https://docs.securitytrails.com/docs/how-to-use-the-dsl)
    * @returns {Promise}
    */
-  dsl (page = 1, body = {}) {
+  ipsDsl (page = 1, body = {}) {
     return this.postRequest(`/ips/list?page=${page}`, body)
   }
 
@@ -343,7 +335,7 @@ STAPI.ips = class ips extends STAPI {
    * @param {Object} body The DSL query you want to run. See How to use the DSL. (https://docs.securitytrails.com/docs/how-to-use-the-dsl)
    * @returns {Promise}
    */
-  statistics (body = {}) {
+  ipsStatistics (body = {}) {
     return this.postRequest('/ips/stats', body)
   }
 
@@ -354,7 +346,7 @@ STAPI.ips = class ips extends STAPI {
    * @param {string} ipAddress The IPv4 address you want to fetch the WHOIS for.
    * @returns {Promise}
    */
-  whois (ipAddress) {
+  ipsWhois (ipAddress) {
     return this.getRequest(`/ips/${ipAddress}/whois`)
   }
 
@@ -366,12 +358,10 @@ STAPI.ips = class ips extends STAPI {
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
    * @returns {Promise}
    */
-  useragents (ipAddress, page = 1) {
+  ipsUseragents (ipAddress, page = 1) {
     return this.getRequest(`/ips/${ipAddress}/useragents?page=${page}`)
   }
-}
 
-STAPI.feeds = class feeds extends STAPI {
   /**
    * Domains
    * Fetch zone files including authoritative nameservers with ease. The method returns a .csv.gz file if successful. If ns is true the columns are apex_domain,nameservers (namerservers delimiter: |) and just apex_domain if ns is false.
@@ -383,7 +373,7 @@ STAPI.feeds = class feeds extends STAPI {
    * @param {string} date Date to fetch data for, format YYYY-MM-DD, e.g. 2019-06-11. Default is latest available.
    * @returns {Promise}
    */
-  domains (type = 'all', filter = '', tld = '', ns = '', date = '') {
+  feedsDomains (type = 'all', filter = '', tld = '', ns = '', date = '') {
     const qs = this.querystring({
       filter: filter,
       tld: tld,
@@ -401,7 +391,7 @@ STAPI.feeds = class feeds extends STAPI {
    * @param {string} date Date to fetch data for, format YYYY-MM-DD, e.g. 2020-07-11. Default is latest available.
    * @returns {Promise}
    */
-  dmarc (type = 'all', date = '') {
+  feedsDmarc (type = 'all', date = '') {
     const qs = this.querystring({ date: date })
     return this.getRequest(`/feeds/dmarc/${type}?${qs}`)
   }
@@ -416,13 +406,11 @@ STAPI.feeds = class feeds extends STAPI {
    * @param {string} date Date to fetch data for, format YYYY-MM-DD, e.g. 2019-10-11. Default is latest available. Subdomains are available starting from 2019-10-01
    * @returns {Promise}
    */
-  subdomains (type = 'all', filter = '', tld = '', date = '') {
+  feedsSubdomains (type = 'all', filter = '', tld = '', date = '') {
     const qs = this.querystring({ filter: filter, tld: tld, date: date })
     return this.getRequest(`/feeds/subdomains/${type}?${qs}`)
   }
-}
 
-STAPI.firehose = class firehose extends STAPI {
   /**
    * Certificate Transparency
    * Stream Certificate Transparency entries
@@ -431,13 +419,11 @@ STAPI.firehose = class firehose extends STAPI {
    * @param {int} end End UNIX timestamp. Without a value it continues to stream results.
    * @returns {Promise}
    */
-  ct (start = '', end = '') {
+  firehoseCt (start = '', end = '') {
     const qs = this.querystring({ start: start, end: end })
     return this.getRequest(`/firehose/ct-logs?${qs}`)
   }
-}
 
-STAPI.misc = class misc extends STAPI {
   /**
    * Submit Hostnames
    * Submit discovered hostnames. With the request header 'Content-Encoding: gzip' it is also possible to submit gzip'd data
@@ -445,7 +431,7 @@ STAPI.misc = class misc extends STAPI {
    * @param {string} filePath
    * @returns {Promise}
    */
-  submit (filePath) {
+  miscSubmit (filePath) {
     return this.postFileRequest('/submit/hostnames', filePath)
   }
 }
