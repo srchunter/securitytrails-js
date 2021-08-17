@@ -2,14 +2,19 @@
   "name": "securitytrails-js",
   "version": "2.0.0",
   "description": "Node.js wrapper for the SecurityTrails API",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "standard"
+    "eslint": "eslint 'src/**/*.js'",
+    "eslint:fix": "eslint --fix 'src/**/*.js'",
+    "test": "eslint"
   },
   "author": "SecurityTrails",
   "license": "ISC",
   "devDependencies": {
-    "standard": "*"
+    "eslint": "^7.32.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-prettier": "3.4.0"
   },
   "dependencies": {
     "node-fetch": "^2.6.1"

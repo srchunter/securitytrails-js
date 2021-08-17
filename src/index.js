@@ -1,42 +1,45 @@
-const fetch = require('node-fetch')
-const fs = require('fs')
+const fetch = require("node-fetch");
+const fs = require("fs");
 
+/**
+ * SecurityTrails API Class
+ */
 class STAPI {
   /**
    * Initilize STAPI class
    * @param {string} apiKey
    */
-  constructor (apiKey) {
-    this.host = 'https://api.securitytrails.com/v1'
+  constructor(apiKey) {
+    this.host = "https://api.securitytrails.com/v1";
     this.options = {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        APIKEY: apiKey || null
-      }
-    }
+        "Content-Type": "application/json",
+        APIKEY: apiKey || null,
+      },
+    };
   }
 
   /**
    * Utility for handling node-fetch errors.
    * @param {object} response
-   * @returns
+   * @return {object}
    */
-  handleErrors (response) {
+  handleErrors(response) {
     if (!response.ok) {
-      throw Error(response.statusText)
+      throw Error(response.statusText);
     }
-    return response
+    return response;
   }
 
   /**
    * Node fetch wrapper
    * @param {string} url The full URL for the API endpoint.
    * @param {object} options Request options, including headers and methods.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  request (url, options) {
-    return fetch(url, options)
+  request(url, options) {
+    return fetch(url, options);
     // .then(this.handleErrors)
     // .then(data => {
     //     return data
@@ -47,91 +50,93 @@ class STAPI {
   /**
    * Get request
    * @param {string} path API endpoint path
-   * @returns {Promise}
+   * @return {Promise}
    */
-  getRequest (path) {
-    const opts = Object.assign({}, this.options)
-    opts.method = 'GET'
-    const url = this.host + path
-    return this.request(url, opts)
+  getRequest(path) {
+    const opts = Object.assign({}, this.options);
+    opts.method = "GET";
+    const url = this.host + path;
+    return this.request(url, opts);
   }
 
   /**
    * Post request
    * @param {string} path API endpoint path
    * @param {*} body Request payload
-   * @returns {Promise}
+   * @return {Promise}
    */
-  postRequest (path, body = {}) {
-    const opts = Object.assign({}, this.options)
-    opts.method = 'POST'
-    opts.body = JSON.stringify(body)
-    const url = this.host + path
-    return this.request(url, opts)
+  postRequest(path, body = {}) {
+    const opts = Object.assign({}, this.options);
+    opts.method = "POST";
+    opts.body = JSON.stringify(body);
+    const url = this.host + path;
+    return this.request(url, opts);
   }
 
   /**
    * Post a file to an endpoint
    * @param {string} path API endpoint path
    * @param {string} file Path to a file.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  postFileRequest (path, file) {
-    const opts = Object.assign({}, this.options)
+  postFileRequest(path, file) {
+    const opts = Object.assign({}, this.options);
 
-    const stats = fs.statSync(file)
-    const fileSizeInBytes = stats.size
-    const readStream = fs.createReadStream(file)
+    const stats = fs.statSync(file);
+    const fileSizeInBytes = stats.size;
+    const readStream = fs.createReadStream(file);
 
-    opts.method = 'POST'
-    opts.body = readStream
-    opts['Content-length'] = fileSizeInBytes
+    opts.method = "POST";
+    opts.body = readStream;
+    opts["Content-length"] = fileSizeInBytes;
 
-    const url = this.host + path
-    return this.request(url, opts)
+    const url = this.host + path;
+    return this.request(url, opts);
   }
 
   /**
    * Generate string of querystring parameters.
    * @param {object} obj Key value pairs of parameters.
-   * @returns {string}
+   * @return {string}
    */
-  querystring (obj) {
-    const params = new URLSearchParams()
+  querystring(obj) {
+    const params = new URLSearchParams();
     for (const key in obj) {
-      params.append(key, obj[key])
+      if (obj[key] !== null) {
+        params.append(key, obj[key]);
+      }
     }
-    return params.toString()
+    return params.toString();
   }
 
   /**
    * Ping
    * You can use this simple endpoint to test your authentication and access to the SecurityTrails API.
    *
-   * @returns {Promise}
+   * @return {Promise}
    */
-  generalPing () {
-    return this.getRequest('/ping')
+  ping() {
+    return this.getRequest("/ping");
   }
 
   /**
    * Usage
    * Usage statistics of the API for the current month
    *
-   * @returns {Promise}
+   * @return {Promise}
    */
-  generalUsage () {
-    return this.getRequest('/account/usage')
+  usage() {
+    return this.getRequest("/account/usage");
   }
 
   /**
    * Scroll
    * A fast and easy way to fetch many results. Currently only available for the DSL API endpoints.
    * @param {string} scrollId The scroll_id returned in the scroll request.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  generalScroll (scrollId) {
-    return this.getRequest(`/scroll/${scrollId}`)
+  scroll(scrollId) {
+    return this.getRequest(`/scroll/${scrollId}`);
   }
 
   /**
@@ -139,10 +144,10 @@ class STAPI {
    * Returns details for a company domain.
    *
    * @param {string} domain A domain
-   * @returns {Promise}
+   * @return {Promise}
    */
-  companyDetails (domain) {
-    return this.getRequest(`/company/${domain}`)
+  company_details(domain) {
+    return this.getRequest(`/company/${domain}`);
   }
 
   /**
@@ -150,10 +155,10 @@ class STAPI {
    * Returns associated IPs for a company domain. The result is not paginated nor limited. The data is based on whois data with the names matched to the domains.
    *
    * @param {string} domain A domain
-   * @returns {Promise}
+   * @return {Promise}
    */
-  companyAssociatedIps (domain) {
-    return this.getRequest(`/company/${domain}/associated-ips`)
+  company_associated_ips(domain) {
+    return this.getRequest(`/company/${domain}/associated-ips`);
   }
 
   /**
@@ -161,10 +166,10 @@ class STAPI {
    * Returns the current data about the given hostname. In addition to the current data, you also get the current statistics associated with a particular record. For example, for a records you'll get how many other hostnames have the same IP
    *
    * @param {string} hostname A domain
-   * @returns {Promise}
+   * @return {Promise}
    */
-  domainsDetails (hostname) {
-    return this.getRequest(`/domain/${hostname}`)
+  domains_details(hostname) {
+    return this.getRequest(`/domain/${hostname}`);
   }
 
   /**
@@ -174,12 +179,12 @@ class STAPI {
    * @param {string} hostname A domain
    * @param {boolean} childrenOnly Only return children subdomains
    * @param {boolean} includeInactive Include domains that don't have active DNS records
-   * @returns {Promise}
+   * @return {Promise}
    */
-  domainsSubdomains (hostname, childrenOnly = false, includeInactive = true) {
+  domains_subdomains(hostname, childrenOnly = false, includeInactive = true) {
     return this.getRequest(
       `/domain/${hostname}/subdomains?children_only=${childrenOnly}&include_inactive=${includeInactive}`
-    )
+    );
   }
 
   /**
@@ -187,21 +192,21 @@ class STAPI {
    * Returns tags for a given hostname
    *
    * @param {string} hostname A domain
-   * @returns {Promise}
+   * @return {Promise}
    */
-  domainsTags (hostname) {
-    return this.getRequest(`/domain/${hostname}/tags`)
+  domains_tags(hostname) {
+    return this.getRequest(`/domain/${hostname}/tags`);
   }
 
   /**
    * WHOIS
    * Returns the current WHOIS data about a given hostname with the stats merged together
-   * 
+   *
    * @param {string} hostname A domain
-   * @returns {Promise}
+   * @return {Promise}
    */
-  domainsWhois (hostname) {
-    return this.getRequest(`/domain/${hostname}/whois`)
+  domains_whois(hostname) {
+    return this.getRequest(`/domain/${hostname}/whois`);
   }
 
   /**
@@ -212,13 +217,13 @@ class STAPI {
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
    * @param {boolean} scroll Request scrolling. Only supported when query is used and not filter. See the Scrolling API endpoint. https://docs.securitytrails.com/reference#scroll
    * @param {Object} body Body parameters. See https://docs.securitytrails.com/reference#domain-search
-   * @returns {Promise}
+   * @return {Promise}
    */
-  domainsSearch (includeIps = false, page = 1, scroll = false, body = {}) {
+  domains_search(includeIps = false, page = 1, scroll = false, body = {}) {
     return this.postRequest(
       `/domains/list?include_ips=${includeIps}&page=${page}&scroll=${scroll}`,
       body
-    )
+    );
   }
 
   /**
@@ -226,22 +231,22 @@ class STAPI {
    * Domain statistics
    *
    * @param {Object} body Body parameters. See https://docs.securitytrails.com/reference#domain-statistics
-   * @returns {Promise}
+   * @return {Promise}
    */
-  domainsStatistics (body = {}) {
-    return this.postRequest('/domains/stats', body)
+  domains_statistics(body = {}) {
+    return this.postRequest("/domains/stats", body);
   }
 
   /**
    * Associated domains
    * Find all domains that are related to a hostname you input. Limited to 10000 results.
-   * 
+   *
    * @param {string} hostname A domain
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  domainsAssociatedDomains (hostname, page = 1) {
-    return this.getRequest(`/domain/${hostname}/associated?page=${page}`)
+  domains_associated_domains(hostname, page = 1) {
+    return this.getRequest(`/domain/${hostname}/associated?page=${page}`);
   }
 
   /**
@@ -252,15 +257,15 @@ class STAPI {
    * @param {boolean} includeSubdomains Default is false.
    * @param {string} status Valid values are "valid", "all", and "expired". Default is valid.
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  domainsSsl (hostname, includeSubdomains = false, status = 'valid', page = 1) {
+  domains_ssl(hostname, includeSubdomains = false, status = "valid", page = 1) {
     const qs = this.querystring({
       include_subdomains: includeSubdomains,
-      tatus: status,
-      page: page
-    })
-    return this.getRequest(`/domain/${hostname}/ssl?${qs}`)
+      status: status,
+      page: page,
+    });
+    return this.getRequest(`/domain/${hostname}/ssl?${qs}`);
   }
 
   /**
@@ -270,27 +275,26 @@ class STAPI {
    * @param {string} hostname A domain
    * @param {boolean} includeSubdomains Default is false.
    * @param {string} status Valid values are "valid", "all", and "expired". Default is valid.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  domainsSslStream (hostname, includeSubdomains = false, status = 'valid') {
+  domains_ssl_stream(hostname, includeSubdomains = false, status = "valid") {
     const qs = this.querystring({
       include_subdomains: includeSubdomains,
-      status: status
-    })
-    return this.getRequest(`/domain/${hostname}/ssl_stream?${qs}`)
+      status: status,
+    });
+    return this.getRequest(`/domain/${hostname}/ssl_stream?${qs}`);
   }
 
   /**
    * DNS
    * Lists out specific historical information about the given hostname parameter. In addition of fetching the historical data for a particular type, the count statistic is returned as well, which represents the number of that particular resource against current data. (a records will have an ip_count field which will represent the number of records that has the same IP as that particular record) The results are sorted first_seen descending. The number of results is not limited.
-   *
    * @param {string} hostname A domain
    * @param {string} type Allowed values: a, aaaa, mx, ns, soa or txt
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  historyDns (hostname, type = 'a', page = 1) {
-    return this.getRequest(`/history/${hostname}/dns/${type}?page=${page}`)
+  history_dns(hostname, type = "a", page = 1) {
+    return this.getRequest(`/history/${hostname}/dns/${type}?page=${page}`);
   }
 
   /**
@@ -299,10 +303,10 @@ class STAPI {
    *
    * @param {string} hostname A domain
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  historyWhois (hostname, page = 1) {
-    return this.getRequest(`/history/${hostname}/whois?page=${page}`)
+  history_whois(hostname, page = 1) {
+    return this.getRequest(`/history/${hostname}/whois?page=${page}`);
   }
 
   /**
@@ -310,10 +314,10 @@ class STAPI {
    * Returns the neighbors in any given IP level range and essentially allows you to explore closeby IP addresses. It will divide the range into 16 groups. Example: a /28 would be divided into 16 /32 blocks or a /24 would be divided into 16 /28 blocks
    *
    * @param {string} ipAddress Starting IP address (optionally with CIDR subnet mask)
-   * @returns {Promise}
+   * @return {Promise}
    */
-  ipsNeighbors (ipAddress) {
-    return this.getRequest(`/ips/nearby/${ipAddress}`)
+  ips_neighbors(ipAddress) {
+    return this.getRequest(`/ips/nearby/${ipAddress}`);
   }
 
   /**
@@ -322,10 +326,10 @@ class STAPI {
    *
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
    * @param {Object} body The DSL query you want to run. See How to use the DSL. (https://docs.securitytrails.com/docs/how-to-use-the-dsl)
-   * @returns {Promise}
+   * @return {Promise}
    */
-  ipsDsl (page = 1, body = {}) {
-    return this.postRequest(`/ips/list?page=${page}`, body)
+  ips_dsl(page = 1, body = {}) {
+    return this.postRequest(`/ips/list?page=${page}`, body);
   }
 
   /**
@@ -333,10 +337,10 @@ class STAPI {
    * Statistics like Reverse DNS pattern identification (RDNS entries are grouped and displayed as x), ports (number of open ports found) or total results are returned
    *
    * @param {Object} body The DSL query you want to run. See How to use the DSL. (https://docs.securitytrails.com/docs/how-to-use-the-dsl)
-   * @returns {Promise}
+   * @return {Promise}
    */
-  ipsStatistics (body = {}) {
-    return this.postRequest('/ips/stats', body)
+  ips_statistics(body = {}) {
+    return this.postRequest("/ips/stats", body);
   }
 
   /**
@@ -344,10 +348,10 @@ class STAPI {
    * Fetch current IP information for a single IPv4 address.
    *
    * @param {string} ipAddress The IPv4 address you want to fetch the WHOIS for.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  ipsWhois (ipAddress) {
-    return this.getRequest(`/ips/${ipAddress}/whois`)
+  ips_whois(ipAddress) {
+    return this.getRequest(`/ips/${ipAddress}/whois`);
   }
 
   /**
@@ -356,10 +360,10 @@ class STAPI {
    *
    * @param {string} ipAddress The IPv4 address you want to fetch user agents for.
    * @param {int} page The page of the returned results, starting at 1. A page returns 100 results.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  ipsUseragents (ipAddress, page = 1) {
-    return this.getRequest(`/ips/${ipAddress}/useragents?page=${page}`)
+  ips_useragents(ipAddress, page = 1) {
+    return this.getRequest(`/ips/${ipAddress}/useragents?page=${page}`);
   }
 
   /**
@@ -371,16 +375,16 @@ class STAPI {
    * @param {string} tld Can be used to only return domains of a specific tld, such as "com"
    * @param {boolean} ns Show nameservers in the list. This parameter is supported for most gTLDs and most ccTLDs are not supported.
    * @param {string} date Date to fetch data for, format YYYY-MM-DD, e.g. 2019-06-11. Default is latest available.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  feedsDomains (type = 'all', filter = '', tld = '', ns = '', date = '') {
+  feeds_domains(type = "all", filter = "", tld = "", ns = "", date = "") {
     const qs = this.querystring({
       filter: filter,
       tld: tld,
       ns: ns,
-      date: date
-    })
-    return this.getRequest(`/feeds/domains/${type}?${qs}`)
+      date: date,
+    });
+    return this.getRequest(`/feeds/domains/${type}?${qs}`);
   }
 
   /**
@@ -389,11 +393,11 @@ class STAPI {
    *
    * @param {string} type Valid values are all (Complete list of DMARC records), new (first seen DMARC records)
    * @param {string} date Date to fetch data for, format YYYY-MM-DD, e.g. 2020-07-11. Default is latest available.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  feedsDmarc (type = 'all', date = '') {
-    const qs = this.querystring({ date: date })
-    return this.getRequest(`/feeds/dmarc/${type}?${qs}`)
+  feeds_dmarc(type = "all", date = "") {
+    const qs = this.querystring({ date: date });
+    return this.getRequest(`/feeds/dmarc/${type}?${qs}`);
   }
 
   /**
@@ -404,11 +408,11 @@ class STAPI {
    * @param {string} filter Valid value is "bytld" if you want to filter by TLD
    * @param {string} tld Required if "filter" is set to "bytld". Can be used to only return subdomains of a specific TLD, such as "com".
    * @param {string} date Date to fetch data for, format YYYY-MM-DD, e.g. 2019-10-11. Default is latest available. Subdomains are available starting from 2019-10-01
-   * @returns {Promise}
+   * @return {Promise}
    */
-  feedsSubdomains (type = 'all', filter = '', tld = '', date = '') {
-    const qs = this.querystring({ filter: filter, tld: tld, date: date })
-    return this.getRequest(`/feeds/subdomains/${type}?${qs}`)
+  feeds_subdomains(type = "all", filter = "", tld = "", date = "") {
+    const qs = this.querystring({ filter: filter, tld: tld, date: date });
+    return this.getRequest(`/feeds/subdomains/${type}?${qs}`);
   }
 
   /**
@@ -417,11 +421,11 @@ class STAPI {
    *
    * @param {int} start Start UNIX timestamp. Without a value it starts whenever the call is sent. Due to technical reasons there might be records with up to 5 minutes delay.
    * @param {int} end End UNIX timestamp. Without a value it continues to stream results.
-   * @returns {Promise}
+   * @return {Promise}
    */
-  firehoseCt (start = '', end = '') {
-    const qs = this.querystring({ start: start, end: end })
-    return this.getRequest(`/firehose/ct-logs?${qs}`)
+  firehose_ct(start = "", end = "") {
+    const qs = this.querystring({ start: start, end: end });
+    return this.getRequest(`/firehose/ct-logs?${qs}`);
   }
 
   /**
@@ -429,11 +433,11 @@ class STAPI {
    * Submit discovered hostnames. With the request header 'Content-Encoding: gzip' it is also possible to submit gzip'd data
    *
    * @param {string} filePath
-   * @returns {Promise}
+   * @return {Promise}
    */
-  miscSubmit (filePath) {
-    return this.postFileRequest('/submit/hostnames', filePath)
+  misc_submit(filePath) {
+    return this.postFileRequest("/submit/hostnames", filePath);
   }
 }
 
-module.exports = STAPI
+module.exports = STAPI;
